@@ -71,18 +71,26 @@ func (this *CommandMsg) FromRedis(server *Server) {
 
 	case "message":
 		this.sendMessage(server)
+
+	case "debounce":
+		this.debounce(server)
 	}
 }
 
 func (this *CommandMsg) formatMessage() (*Message, error) {
 	event, e_ok := this.Message["event"].(string)
 	data, b_ok := this.Message["data"].(map[string]interface{})
+	ts, t_ok := this.Message["data"].(time)
 
 	if !b_ok || !e_ok {
 		return nil, errors.New("Could not format message")
 	}
 
-	msg := &Message{event, data, time.Now().UTC().Unix()}
+	if !t_ok {
+		ts = time.Now().UTC().Unix()
+	}
+
+	msg := &Message{event, data, ts}
 
 	return msg, nil
 }
@@ -98,6 +106,10 @@ func (this *CommandMsg) sendMessage(server *Server) {
 	} else {
 		this.messageAll(server)
 	}
+}
+
+func (this *CommandMsg) debounce(server *Server) {
+
 }
 
 func (this *CommandMsg) messageUser(UID string, page string, server *Server) {
