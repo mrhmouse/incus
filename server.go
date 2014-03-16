@@ -21,6 +21,7 @@ type Server struct {
 	ID     string
 	Config *Configuration
 	Store  *Storage
+	Debounce *Debouncer
 
 	timeout time.Duration
 }
@@ -30,8 +31,9 @@ func createServer(conf *Configuration, store *Storage) *Server {
 	io.WriteString(hash, time.Now().String())
 	id := string(hash.Sum(nil))
 
+	debouncer := newDebouncer()
 	timeout := time.Duration(conf.GetInt("connection_timeout"))
-	return &Server{id, conf, store, timeout}
+	return &Server{id, conf, store, debouncer, timeout}
 }
 
 func (this *Server) initSocketListener() {

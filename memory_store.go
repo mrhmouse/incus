@@ -33,7 +33,7 @@ func (this *MemoryStore) Save(sock *Socket) error {
 
 func (this *MemoryStore) Remove(sock *Socket) error {
 	user, exists := this.clients[sock.UID]
-	if !exists { // only subtract if the client was in the store in the first place.
+	if !exists {
 		return nil
 	}
 

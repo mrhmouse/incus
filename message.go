@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 	"time"
+	"strconv"
 )
 
 type CommandMsg struct {
@@ -80,7 +81,7 @@ func (this *CommandMsg) FromRedis(server *Server) {
 func (this *CommandMsg) formatMessage() (*Message, error) {
 	event, e_ok := this.Message["event"].(string)
 	data, b_ok := this.Message["data"].(map[string]interface{})
-	ts, t_ok := this.Message["data"].(time)
+	ts, t_ok := this.Message["data"].(int64)
 
 	if !b_ok || !e_ok {
 		return nil, errors.New("Could not format message")
@@ -109,7 +110,21 @@ func (this *CommandMsg) sendMessage(server *Server) {
 }
 
 func (this *CommandMsg) debounce(server *Server) {
+	key, keyok := this.Command["debouncekey"]
+	wait_s, waitok := this.Command["debouncewait"]
 
+	if !keyok || !waitok {
+		return
+	}
+
+	wait, err := strconv.Atoi(wait_s)
+	if err != nil {
+		return
+	}
+
+	server.Debounce.add(key, wait, func() {
+		this.sendMessage(server)
+	});
 }
 
 func (this *CommandMsg) messageUser(UID string, page string, server *Server) {
