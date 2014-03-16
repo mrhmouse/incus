@@ -18,9 +18,9 @@ const (
 )
 
 type Server struct {
-	ID     string
-	Config *Configuration
-	Store  *Storage
+	ID       string
+	Config   *Configuration
+	Store    *Storage
 	Debounce *Debouncer
 
 	timeout time.Duration

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"time"
 	"sync"
+	"time"
 )
 
 type Debouncer struct {
 	bounces map[string]func()
-    mutex   *sync.Mutex
+	mutex   *sync.Mutex
 }
 
 func newDebouncer() *Debouncer {
@@ -20,31 +20,29 @@ func (this *Debouncer) add(key string, wait int, fn func()) {
 
 	_, exists := this.bounces[key]
 
-    this.bounces[key] = fn
+	this.bounces[key] = fn
 
-    if(!exists) {
-    	this.setTimeout(key, wait)
-    }
+	if !exists {
+		this.setTimeout(key, wait)
+	}
 }
 
 func (this *Debouncer) setTimeout(key string, wait int) {
 	go func() {
 		time.Sleep(time.Duration(wait) * time.Second)
-    	
-    	this.mutex.Lock()
 
-    	fn, exists := this.bounces[key]
-    	if(exists) {
-    		delete(this.bounces, key)
-    	}
+		this.mutex.Lock()
 
-    	this.mutex.Unlock()
+		fn, exists := this.bounces[key]
+		if exists {
+			delete(this.bounces, key)
+		}
 
-    	if(exists) {
-    		fn()
-    	}
+		this.mutex.Unlock()
+
+		if exists {
+			fn()
+		}
 
 	}()
 }
-
-

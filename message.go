@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 type CommandMsg struct {
@@ -124,7 +124,7 @@ func (this *CommandMsg) debounce(server *Server) {
 
 	server.Debounce.add(key, wait, func() {
 		this.sendMessage(server)
-	});
+	})
 }
 
 func (this *CommandMsg) messageUser(UID string, page string, server *Server) {
@@ -190,5 +190,5 @@ func (this *CommandMsg) messagePage(page string, server *Server) {
 
 func (this *CommandMsg) forwardToRedis(server *Server) {
 	msg_str, _ := json.Marshal(this)
-	server.Store.redis.Publish(server.Config.Get("redis_message_channel"), string(msg_str)) //pass the message into redis to send message across cluster    
+	server.Store.redis.Publish(server.Config.Get("redis_message_channel"), string(msg_str)) //pass the message into redis to send message across cluster
 }
